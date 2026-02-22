@@ -1,0 +1,4 @@
+aiogram
+openai
+pymupdf
+python-dotenv
