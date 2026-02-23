@@ -17,16 +17,17 @@ dp = Dispatcher()
 user_answers = {}
 
 questions = [
-    "What is your experience managing AI/ML teams?",
-    "Have you delivered AI products to production?",
-    "Describe your Agile experience",
-    "Do you have stakeholder management experience?"
+    "Ваше полное имя (ФИО)",
+    "Какой у вас опыт управления проектами (в годах) ?",
+    "Какой у вас опыт управления AI или ML командами (в годах)?",
+    "У вас есть завершенные AI-продукты о которых выможете рассказать?",
+    "Опишите ваш опыт с Agile"
 ]
 
 @dp.message(Command("start"))
 async def start(message: Message):
     user_answers[message.from_user.id] = []
-    await message.answer("Welcome to AI PM HR Assistant")
+    await message.answer("Добро пожаловать в чат с AI PM HR Assistant")
     await message.answer(questions[0])
 
 @dp.message()

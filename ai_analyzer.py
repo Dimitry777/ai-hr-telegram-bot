@@ -23,7 +23,7 @@ def analyze_candidate(pdf_path, answers):
     resume_text = extract_text_from_pdf(pdf_path)
 
     prompt = f"""
-You are an HR AI assistant evaluating a candidate for the role of AI Project Manager.
+Ты HR-ассистент, оценивающий кандидата на позицию AI Project Manager.
 
 Candidate answers:
 {answers}
@@ -31,11 +31,12 @@ Candidate answers:
 Resume:
 {resume_text}
 
-Evaluate the candidate and provide:
-1. Score from 0 to 100
-2. Strengths
-3. Weaknesses
-4. Final hiring recommendation
+Ответь на русском языке и предоставь:
+
+1. Оценку от 0 до 100
+2. Сильные стороны кандидата
+3. Слабые стороны
+4. Рекомендацию по найму
 """
 
     completion = client.chat.completions.create(
