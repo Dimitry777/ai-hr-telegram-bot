@@ -1,5 +1,6 @@
 import logging
 import os
+from email_sender import send_email
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import Message
 from aiogram.filters import CommandStart

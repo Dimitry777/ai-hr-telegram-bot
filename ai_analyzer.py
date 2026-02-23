@@ -2,19 +2,23 @@ import os
 from openai import OpenAI
 from PyPDF2 import PdfReader
 
-api_key = os.getenv("OPENAI_API_KEY")
 
-if not api_key:
-    raise ValueError("OPENAI_API_KEY is missing!")
+# Используем DeepSeek вместо OpenAI
+client = OpenAI(
+    api_key=os.getenv("DEEPSEEK_API_KEY"),
+    base_url="https://api.deepseek.com"
+)
 
-client = OpenAI(api_key=api_key)
+if not os.getenv("DEEPSEEK_API_KEY"):
+    raise ValueError("DEEPSEEK_API_KEY is missing!")
 
 
 def extract_text_from_pdf(file_path):
     reader = PdfReader(file_path)
     text = ""
     for page in reader.pages:
-        text += page.extract_text()
+        if page.extract_text():
+            text += page.extract_text()
     return text
 
 
@@ -25,26 +29,29 @@ def analyze_candidate(pdf_path, answers):
     prompt = f"""
 Ты HR-ассистент, оценивающий кандидата на позицию AI Project Manager.
 
-Candidate answers:
+Ответь строго структурированно:
+
+1. Оценка (число от 0 до 100)
+2. Сильные стороны (списком)
+3. Слабые стороны (списком)
+4. Рекомендация по найму (кратко)
+
+Ответ только на русском языке.
+
+Анкета кандидата:
 {answers}
 
-Resume:
+Резюме:
 {resume_text}
-
-Ответь на русском языке и предоставь:
-
-1. Оценку от 0 до 100
-2. Сильные стороны кандидата
-3. Слабые стороны
-4. Рекомендацию по найму
 """
 
     completion = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="deepseek-chat",
         messages=[
-            {"role": "system", "content": "You are a professional HR recruiter."},
+            {"role": "system", "content": "Ты профессиональный HR-рекрутер."},
             {"role": "user", "content": prompt}
-        ]
+        ],
+        temperature=0.3
     )
 
     return completion.choices[0].message.content
