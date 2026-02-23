@@ -1,12 +1,11 @@
 from openai import OpenAI
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
+# Railway already provides ENV variables
+api_key = os.environ.get("OPENAI_API_KEY")
 
-api_key = os.getenv("OPENAI_API_KEY")
-
-if not api_key:
-    raise ValueError("OPENAI_API_KEY is missing!")
+if api_key is None:
+    print("DEBUG ENV:", dict(os.environ))
+    raise ValueError("OPENAI_API_KEY not found in environment!")
 
 client = OpenAI(api_key=api_key)
