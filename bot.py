@@ -55,7 +55,7 @@ async def handle_messages(message: Message):
         if len(user_answers[user_id]) < len(questions):
             await message.answer(questions[len(user_answers[user_id])])
         else:
-            await message.answer("Please upload your resume in PDF")
+            await message.answer("Загрузите ваше резюме в формате PDF")
 
 logging.basicConfig(level=logging.INFO)
 
