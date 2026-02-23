@@ -30,23 +30,32 @@ async def start(message: Message):
     await message.answer("Добро пожаловать в чат с AI PM HR Assistant")
     await message.answer(questions[0])
 
-@dp.message()
+@dp.message(F.document)
 async def handle_messages(message: Message):
 
-    user_id = message.from_user.id
+    document = message.document
 
-    if message.document:
+    if document.mime_type != "application/pdf":
+        await message.answer("Пожалуйста, отправьте резюме в формате PDF.")
+        return
 
-        file = await bot.get_file(message.document.file_id)
-        await bot.download_file(file.file_path, "resume.pdf")
+    file_id = document.file_id
 
-        resume_text = extract_text_from_pdf("resume.pdf")
-        answers = "\n".join(user_answers[user_id])
+    file = await bot.get_file(file_id)
+    file_path = file.file_path
 
-        result = analyze_candidate(resume_text, answers)
+    downloaded_file = await bot.download_file(file_path)
 
-        await message.answer("Analyzing your profile...")
-        await message.answer(result)
+    local_pdf_path = f"resume_{message.from_user.id}.pdf"
+
+    with open(local_pdf_path, "wb") as f:
+        f.write(downloaded_file.read())
+
+    answers = "\n".join(user_answers[message.from_user.id])
+
+    result = analyze_candidate(local_pdf_path, answers)
+
+    await message.answer(result)
 
     else:
 
