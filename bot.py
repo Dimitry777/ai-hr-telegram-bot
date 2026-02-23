@@ -42,7 +42,7 @@ async def handle_messages(message: Message):
         resume_text = extract_text_from_pdf("resume.pdf")
         answers = "\n".join(user_answers[user_id])
 
-        result = analyze_candidate(answers, resume_text)
+        result = analyze_candidate(resume_text, answers)
 
         await message.answer("Analyzing your profile...")
         await message.answer(result)
