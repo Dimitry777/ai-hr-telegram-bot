@@ -36,7 +36,7 @@ async def handle_messages(message: Message):
     document = message.document
 
     if document.mime_type != "application/pdf":
-        await message.answer("Пожалуйста, отправьте резюме в формате PDF.")
+        await message.answer("Загрузите ваше резюме в формате PDF.")
         return
 
     file_id = document.file_id
@@ -64,7 +64,7 @@ async def handle_messages(message: Message):
         if len(user_answers[user_id]) < len(questions):
             await message.answer(questions[len(user_answers[user_id])])
         else:
-            await message.answer("Загрузите ваше резюме в формате PDF")
+            await message.answer("Загрузите ваше резюме в формате PDF.")
 
 logging.basicConfig(level=logging.INFO)
 
