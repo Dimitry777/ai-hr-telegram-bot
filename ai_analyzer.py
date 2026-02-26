@@ -1,57 +1,90 @@
-import os
-from openai import OpenAI
 from PyPDF2 import PdfReader
 
-
-# Используем DeepSeek вместо OpenAI
-client = OpenAI(
-    api_key=os.getenv("DEEPSEEK_API_KEY"),
-    base_url="https://api.deepseek.com"
-)
-
-if not os.getenv("DEEPSEEK_API_KEY"):
-    raise ValueError("DEEPSEEK_API_KEY is missing!")
+# AI PM skill keywords
+AI_PM_SKILLS = {
+    "python": 8,
+    "machine learning": 10,
+    "deep learning": 10,
+    "nlp": 9,
+    "data science": 8,
+    "ai": 6,
+    "llm": 9,
+    "openai": 6,
+    "tensorflow": 7,
+    "pytorch": 7,
+    "project management": 8,
+    "scrum": 6,
+    "agile": 6,
+    "jira": 5,
+    "product management": 7,
+    "stakeholder": 6,
+    "sql": 5,
+    "api": 5,
+    "docker": 4,
+    "cloud": 5
+}
 
 
 def extract_text_from_pdf(file_path):
     reader = PdfReader(file_path)
     text = ""
     for page in reader.pages:
-        if page.extract_text():
-            text += page.extract_text()
+        page_text = page.extract_text()
+        if page_text:
+            text += page_text.lower()
     return text
+
+
+def score_candidate(text):
+
+    score = 0
+    found_skills = []
+
+    for skill, weight in AI_PM_SKILLS.items():
+        if skill in text:
+            score += weight
+            found_skills.append(skill)
+
+    if score > 100:
+        score = 100
+
+    return score, found_skills
 
 
 def analyze_candidate(pdf_path, answers):
 
     resume_text = extract_text_from_pdf(pdf_path)
+    combined_text = (resume_text + answers).lower()
 
-    prompt = f"""
-Ты HR-ассистент, оценивающий кандидата на позицию AI Project Manager.
+    score, skills = score_candidate(combined_text)
 
-Ответь строго структурированно:
+    if score >= 75:
+        recommendation = "Рекомендуется к найму"
+    elif score >= 50:
+        recommendation = "Рассмотреть после интервью"
+    else:
+        recommendation = "Не рекомендуется"
 
-1. Оценка (число от 0 до 100)
-2. Сильные стороны (списком)
-3. Слабые стороны (списком)
-4. Рекомендация по найму (кратко)
+    strengths = ", ".join(skills[:5]) if skills else "Недостаточно релевантных AI навыков"
 
-Ответ только на русском языке.
+    missing_skills = [
+        skill for skill in AI_PM_SKILLS.keys()
+        if skill not in skills
+    ]
 
-Анкета кандидата:
-{answers}
+    weaknesses = ", ".join(missing_skills[:5]) if missing_skills else "Нет явных слабых сторон"
 
-Резюме:
-{resume_text}
+    result = f"""
+📊 Оценка кандидата: {score}/100
+
+💪 Сильные стороны:
+{strengths}
+
+⚠️ Слабые стороны:
+{weaknesses}
+
+🧾 Рекомендация:
+{recommendation}
 """
 
-    completion = client.chat.completions.create(
-        model="deepseek-chat",
-        messages=[
-            {"role": "system", "content": "Ты профессиональный HR-рекрутер."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.3
-    )
-
-    return completion.choices[0].message.content
+    return result

@@ -20,25 +20,21 @@ questions = [
     "Сколько у вас лет опыта в управлении проектами?",
     "Сколько у вас лет опыта в IT?",
     "У вас есть опыт управления AI или ML командами?",
-    "У вас есть завершенные AI-продукты о которых выможете рассказать?",
+    "У вас есть завершенные AI-продукты о которых вы можете рассказать?",
     "Работали ли вы по методологии Agile?"
 ]
 
 user_answers = {}
 current_question = {}
 
-
 @dp.message(CommandStart())
 async def start_handler(message: Message):
     user_answers[message.from_user.id] = []
     current_question[message.from_user.id] = 0
 
-    await message.answer(
-        "Добро пожаловать в чат с AI PM HR Assistant. Пожалуйста, ответьте на несколько вопросов перед отправкой резюме."
-    )
+    await message.answer("Добро пожаловать в чат с AI PM HR Assistant! Пожалуйста, ответьте на несколько вопросов перед отправкой резюме.")
 
     await message.answer(questions[0])
-
 
 @dp.message(F.text)
 async def handle_answers(message: Message):
@@ -55,7 +51,6 @@ async def handle_answers(message: Message):
     else:
         await message.answer("Спасибо! Теперь отправьте ваше резюме в формате PDF.")
 
-
 @dp.message(F.document)
 async def handle_pdf(message: Message):
     user_id = message.from_user.id
@@ -70,7 +65,7 @@ async def handle_pdf(message: Message):
         await message.answer("Пожалуйста, отправьте резюме в формате PDF.")
         return
 
-    await message.answer("Получил ваше резюме. Анализирую...")
+    await message.answer("Спасибо! Ваше резюме отправлено на рассмотрение, ответ вы получите от HR-специалиста в течении 3х рабочих дней.")
 
     file = await bot.get_file(document.file_id)
     file_path = file.file_path
@@ -86,8 +81,10 @@ async def handle_pdf(message: Message):
 
     result = analyze_candidate(local_pdf_path, answers)
 
-    await message.answer(result)
-
+    send_email(
+        subject="Новый анализ кандидата",
+        body=result
+    )
 
 if __name__ == "__main__":
     import asyncio

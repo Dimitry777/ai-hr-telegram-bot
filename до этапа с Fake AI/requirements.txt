@@ -1,0 +1,5 @@
+aiogram
+openai
+pymupdf
+python-dotenv
+PyPDF2
